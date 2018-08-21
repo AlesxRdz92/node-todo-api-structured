@@ -2,7 +2,7 @@ const expect = require('expect');
 const request = require('supertest');
 const { ObjectID } = require('mongodb');
 
-const { app } = require('./../server');
+const  app  = require('./../app');
 const { Todo } = require('./../models/todo');
 const { Users } = require('./../models/user');
 const { todos, populateTodos, populateUsers, users } = require('./seed');
@@ -50,7 +50,7 @@ describe('GET /todos', () => {
         request(app).get('/todos')
             .expect(200)
             .expect(res => {
-                expect(res.body.todos.length).toBe(2);
+                expect(res.body.length).toBe(2);
             }).end(done);
     });
 });
@@ -87,7 +87,7 @@ describe('DELETE /todos/id', () => {
         request(app).delete(`/todos/${id}`)
             .expect(200)
             .expect(res => {
-                expect(res.body.todo._id).toBe(id);
+                expect(res.body._id).toBe(id);
             })
             .end((err, res) => {
                 if (err)
@@ -123,9 +123,9 @@ describe('PATCH /todos/id', () => {
             .send({ text, completed: true, completedAt: 434253445 })
             .expect(200)
             .expect(res => {
-                expect(res.body.todo.text).toEqual(text);
-                expect(res.body.todo.completed).toBe(true);
-                expect(typeof res.body.todo.completedAt).toBe('number');
+                expect(res.body.text).toEqual(text);
+                expect(res.body.completed).toBe(true);
+                expect(typeof res.body.completedAt).toBe('number');
             })
             .end(done);
     });
@@ -137,9 +137,9 @@ describe('PATCH /todos/id', () => {
             .send({ text, completed: false })
             .expect(200)
             .expect(res => {
-                expect(res.body.todo.text).toEqual(text);
-                expect(res.body.todo.completed).toBeFalsy();
-                expect(res.body.todo.completedAt).toBeNull();
+                expect(res.body.text).toEqual(text);
+                expect(res.body.completed).toBeFalsy();
+                expect(res.body.completedAt).toBeNull();
             })
             .end(done);
     });
@@ -160,5 +160,3 @@ describe('PATCH /todos/id', () => {
             .end(done);
     });
 });
-
-
