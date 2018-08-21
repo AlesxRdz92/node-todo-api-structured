@@ -41,6 +41,7 @@ const todosController = {
         Todo.findByIdAndUpdate(id, { $set: body }, { new: true }).then(todo => {
             if (!todo)
                 return res.status(404).send('ID not found');
+            res.json(todo);
         }, e => res.status(400).send());
     }
 };
