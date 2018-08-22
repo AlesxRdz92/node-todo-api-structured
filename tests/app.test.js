@@ -4,7 +4,7 @@ const { ObjectID } = require('mongodb');
 
 const  app  = require('./../app');
 const { Todo } = require('./../models/todo');
-const { Users } = require('./../models/user');
+const { User } = require('./../models/user');
 const { todos, populateTodos, populateUsers, users } = require('./seed');
 
 beforeEach(populateUsers);
@@ -160,3 +160,64 @@ describe('PATCH /todos/id', () => {
             .end(done);
     });
 });
+
+describe('GET /users/me', () => {
+    it('shoudl return user if authenticated', done => {
+        request(app)
+        .get('/users/me')
+        .set('x-auth', users[0].tokens[0].token)
+        .expect(200)
+        .expect(res => {
+            expect(res.body._id).toBe(users[0]._id.toHexString());
+            expect(res.body.email).toBe(users[0].email);
+        }).end(done);
+    });
+
+    it('Should return a 401', done => {
+        request(app).get('/users/me')
+        .expect(401)
+        .expect(res => expect(res.body).toBeNull).end(done);
+    });
+});
+
+describe('POST /users', () => {
+    it('should create a user', done => {
+        let email = 'example@example.com';
+        let password = '123mnb';
+
+        request(app).post('/users')
+        .send({email, password})
+        .expect(200)
+        .expect(res => {
+            expect(res.header['x-auth']).toBeDefined();
+            expect(res.body._id).toBeDefined();
+            expect(res.body.email).toBe(email);
+        }).end(err => {
+            if (err) 
+                return done(err);
+            User.findOne({email}).then(user => {
+                expect(user).toBeDefined();
+                expect(user.password).not.toBe(password);
+                done();
+            })
+        });
+    });
+
+    it('should return validation erros if request is invalid', done => {
+        let email = 'invalid';
+        request(app).post('/users')
+        .send({email})
+        .expect(400)
+        .end(done);
+    });
+
+    it('should not create user if email is in use', done => {
+        let email = 'example@hotmail.com';
+        let password = 'test1234';
+
+        request(app).post('/users')
+        .send({email, password})
+        .expect(400)
+        .end(done);
+    });
+})
