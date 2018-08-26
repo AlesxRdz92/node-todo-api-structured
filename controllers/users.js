@@ -22,6 +22,13 @@ const usersController = {
         }).catch(e => {
             res.status(400).send();
         });
+    },
+    logOut(req, res) {
+        req.user.removeToken(req.token).then(() => {
+            res.status(200).send('Logout succesful');
+        }, () => {
+            res.status(400);
+        });
     }
 };
 
