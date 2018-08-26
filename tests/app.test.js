@@ -162,7 +162,7 @@ describe('PATCH /todos/id', () => {
 });
 
 describe('GET /users/me', () => {
-    it('shoudl return user if authenticated', done => {
+    it('should return user if authenticated', done => {
         request(app)
             .get('/users/me')
             .set('x-auth', users[0].tokens[0].token)
@@ -173,7 +173,7 @@ describe('GET /users/me', () => {
             }).end(done);
     });
 
-    it('Should return a 401', done => {
+    it('should return a 401', done => {
         request(app).get('/users/me')
             .expect(401)
             .expect(res => expect(res.body).toBeNull).end(done);
@@ -235,5 +235,20 @@ describe('POST /users/login', () => {
         request(app).post('/users/login').send({ email, password })
             .expect(400)
             .expect(res => expect(res.header['x-auth']).not.toBeDefined()).end(done);
+    });
+});
+
+describe('DELETE /users/logout', () => {
+    it('should remove auth token and logout user', done => {
+        request(app).delete('/users/logout').set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .end((err, res) => {
+                if (err)
+                    return done(err);
+                User.findById(users[0]._id).then(user => {
+                    expect(user.tokens.length).toBe(0);
+                    done();
+                }).catch(e => done(e));
+            });
     });
 });
