@@ -4,26 +4,35 @@ const _ = require('lodash');
 
 const todosController = {
     all(req, res) {
-        Todo.find({}).then(todos => {
+        Todo.find({
+            _creator: req.user._id
+        }).then(todos => {
             res.json(todos);
         }, e => res.status(400).send());
     },
     add(req, res) {
         new Todo({
-            text: req.body.text
+            text: req.body.text,
+            _creator: req.user._id
         }).save().then(doc => {
             res.json(doc);
         }, e => res.status(400).send());
     },
     one(req, res) {
-        Todo.findById(req.params.id).then(todo => {
+        Todo.findOne({
+            _id: req.params.id,
+            _creator: req.user._id
+        }).then(todo => {
             if (!todo)
                 return res.status(404).send('ID not found');
             res.json(todo);
         }, e => res.status(400).send());
     },
     delete(req, res) {
-        Todo.findByIdAndRemove(req.params.id).then(todo => {
+        Todo.findOneAndRemove({
+            _id: req.params.id,
+            _creator: req.user._id
+        }).then(todo => {
             if (!todo)
                 return res.status(404).send('ID not found');
             res.json(todo);
@@ -38,7 +47,7 @@ const todosController = {
             body.completed = false;
             body.completedAt = null;
         }
-        Todo.findByIdAndUpdate(id, { $set: body }, { new: true }).then(todo => {
+        Todo.findOneAndUpdate({ _id: id, _creator: req.user._id }, { $set: body }, { new: true }).then(todo => {
             if (!todo)
                 return res.status(404).send('ID not found');
             res.json(todo);

@@ -1,11 +1,12 @@
 var express = require('express');
 var router = express.Router();
 const todosController = require('./../controllers/todos');
+const { authenticate } = require('./../middleware/authenticate');
 
-router.get('/', todosController.all);
-router.post('/', todosController.add);
-router.get('/:id', todosController.one);
-router.delete('/:id', todosController.delete);
-router.patch('/:id', todosController.update);
+router.get('/', authenticate, todosController.all);
+router.post('/', authenticate, todosController.add);
+router.get('/:id', authenticate, todosController.one);
+router.delete('/:id', authenticate, todosController.delete);
+router.patch('/:id', authenticate, todosController.update);
 
 module.exports = router;
